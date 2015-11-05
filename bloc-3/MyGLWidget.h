@@ -55,9 +55,10 @@ class MyGLWidget : public QGLWidget
     glm::vec3 centrePatr;
     float escala;
     double radiEsc;
+    float minx, miny, minz, maxx, maxy, maxz;
 
     typedef  enum {NONE, ROTATE} InteractiveAction;
     InteractiveAction DoingInteractive;
     int xClick, yClick;
-    float angleY;
+    float angleY, angleX;
 };

@@ -7,6 +7,7 @@ MyGLWidget::MyGLWidget (QGLFormat &f, QWidget* parent) : QGLWidget(f, parent)
 {
   setFocusPolicy(Qt::ClickFocus);  // per rebre events de teclat
   xClick = yClick = 0;
+  angleX = 0.0;
   angleY = 0.0;
   DoingInteractive = NONE;
   radiEsc = sqrt(3);
@@ -291,6 +292,7 @@ void MyGLWidget::viewTransform ()
   glm::mat4 View;  // Matriu de posició i orientació
   View = glm::translate(glm::mat4(1.f), glm::vec3(0, 0, -2*radiEsc));
   View = glm::rotate(View, -angleY, glm::vec3(0, 1, 0));
+  View = glm::rotate(View, -angleX, glm::vec3(1, 0, 0));
 
   glUniformMatrix4fv (viewLoc, 1, GL_FALSE, &View[0][0]);
 }
@@ -298,7 +300,6 @@ void MyGLWidget::viewTransform ()
 void MyGLWidget::calculaCapsaModel ()
 {
   // Càlcul capsa contenidora i valors transformacions inicials
-  float minx, miny, minz, maxx, maxy, maxz;
   minx = maxx = patr.vertices()[0];
   miny = maxy = patr.vertices()[1];
   minz = maxz = patr.vertices()[2];
@@ -325,6 +326,16 @@ void MyGLWidget::keyPressEvent (QKeyEvent *e)
 {
   switch (e->key())
   {
+    case Qt::Key_S:
+      escala = escala - 0.5/(maxy-miny);
+      modelTransformPatricio();
+      modelTransformTerra();
+      break;
+    case Qt::Key_D:
+      escala = escala + 0.5/(maxy-miny);
+      modelTransformPatricio();
+      modelTransformTerra();
+      break;
     case Qt::Key_Escape:
         exit(0);
 
@@ -356,6 +367,7 @@ void MyGLWidget::mouseMoveEvent(QMouseEvent *e)
   if (DoingInteractive == ROTATE)
   {
     // Fem la rotació
+    angleX += (e->y() - yClick) * M_PI / 180.0;
     angleY += (e->x() - xClick) * M_PI / 180.0;
     viewTransform ();
   }

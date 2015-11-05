@@ -61,10 +61,16 @@ void main()
     gl_Position = proj * view * TG * vec4 (vertex, 1.0);
 
     vec4 L = view * TG * vec4 (vertex, 1.0);
+
+    // La posicio del focus de llum ha d'estar en SCO.
     vec4 posFocusNormal = vec4 (posFocus, 1.0);
     L = posFocusNormal - L;
+
+    // El vector normal a SCO.
     mat3 NormalMatrix = inverse(transpose(mat3(view*TG)));
     vec3 NormSCO = NormalMatrix*normal;
+
     fcolor = Lambert(NormSCO, L.xyz);
+    //fcolor = Phong(NormSCO, L.xyz, vec4 (vertex, 1.0));
 
 }
