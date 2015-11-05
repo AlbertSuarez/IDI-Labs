@@ -52,8 +52,8 @@ class MyGLWidget : public QGLWidget
     GLuint vertexLoc, normalLoc, matambLoc, matdiffLoc, matspecLoc, matshinLoc;
     Model patr;
     // paràmetres calculats a partir de la capsa contenidora del model
-    glm::vec3 centrePatr;
-    float escala;
+    glm::vec3 centrePatr, centreTerra;
+    float escala, escalaTerra;
     double radiEsc;
     float minx, miny, minz, maxx, maxy, maxz;
 

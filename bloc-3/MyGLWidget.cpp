@@ -137,6 +137,8 @@ void MyGLWidget::createBuffers ()
 	glm::vec3(1.0, -1.0, -1.0),
 	glm::vec3(1.0, 1.0, -1.0)
   }; 
+  centreTerra = glm::vec3 (0,0,0);
+  escalaTerra = 1.0;
 
   // VBO amb la normal de cada vèrtex
   glm::vec3 norm1 (0,1,0);
@@ -274,7 +276,9 @@ void MyGLWidget::modelTransformPatricio ()
 void MyGLWidget::modelTransformTerra ()
 {
   glm::mat4 TG;  // Matriu de transformació
-  TG = glm::mat4(1.f);
+  //TG = glm::mat4(1.f);
+  TG = glm::scale(TG, glm::vec3(escalaTerra, escalaTerra, escalaTerra));
+  TG = glm::translate(TG, -centreTerra);
   glUniformMatrix4fv (transLoc, 1, GL_FALSE, &TG[0][0]);
 }
 
@@ -326,14 +330,16 @@ void MyGLWidget::keyPressEvent (QKeyEvent *e)
 {
   switch (e->key())
   {
-    case Qt::Key_S:
-      escala = escala - 0.5/(maxy-miny);
+    case Qt::Key_Minus:
+      escala = escala - 0.03/(maxy-miny);
       modelTransformPatricio();
+      escalaTerra = escalaTerra - 0.015;
       modelTransformTerra();
       break;
-    case Qt::Key_D:
-      escala = escala + 0.5/(maxy-miny);
+    case Qt::Key_Plus:
+      escala = escala + 0.03/(maxy-miny);
       modelTransformPatricio();
+      escalaTerra = escalaTerra + 0.015;
       modelTransformTerra();
       break;
     case Qt::Key_Escape:
