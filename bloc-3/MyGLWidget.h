@@ -41,6 +41,7 @@ class MyGLWidget : public QGLWidget
     void viewTransform ();
     void modelTransformTerra ();
     void modelTransformPatricio ();
+    void modelTransformLlum ();
     void calculaCapsaModel ();
 
     // VAO i VBO names
@@ -50,10 +51,11 @@ class MyGLWidget : public QGLWidget
 
     GLuint transLoc, projLoc, viewLoc;
     GLuint vertexLoc, normalLoc, matambLoc, matdiffLoc, matspecLoc, matshinLoc;
+    GLuint colFocusLoc, posFocusLoc;
     Model patr;
     // paràmetres calculats a partir de la capsa contenidora del model
     glm::vec3 centrePatr, centreTerra;
-    float escala, escalaTerra;
+    float escala, escalaTerra, movPosFocus;
     double radiEsc;
     float minx, miny, minz, maxx, maxy, maxz;
 

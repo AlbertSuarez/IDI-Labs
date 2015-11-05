@@ -9,6 +9,7 @@ MyGLWidget::MyGLWidget (QGLFormat &f, QWidget* parent) : QGLWidget(f, parent)
   xClick = yClick = 0;
   angleX = 0.0;
   angleY = 0.0;
+  movPosFocus = 0.0;
   DoingInteractive = NONE;
   radiEsc = sqrt(3);
 }
@@ -262,6 +263,8 @@ void MyGLWidget::carregaShaders ()
   transLoc = glGetUniformLocation (program->programId(), "TG");
   projLoc = glGetUniformLocation (program->programId(), "proj");
   viewLoc = glGetUniformLocation (program->programId(), "view");
+  colFocusLoc = glGetUniformLocation (program->programId(), "colFocus");
+  posFocusLoc = glGetUniformLocation (program->programId(), "posFocus");
 }
 
 void MyGLWidget::modelTransformPatricio ()
@@ -276,10 +279,16 @@ void MyGLWidget::modelTransformPatricio ()
 void MyGLWidget::modelTransformTerra ()
 {
   glm::mat4 TG;  // Matriu de transformació
-  //TG = glm::mat4(1.f);
   TG = glm::scale(TG, glm::vec3(escalaTerra, escalaTerra, escalaTerra));
   TG = glm::translate(TG, -centreTerra);
   glUniformMatrix4fv (transLoc, 1, GL_FALSE, &TG[0][0]);
+}
+
+void MyGLWidget::modelTransformLlum ()
+{
+  glm::mat4 TG;
+  TG = glm::translate(TG, glm::vec3(movPosFocus, 0., 0.));
+  glUniformMatrix4fv (posFocusLoc, 1, GL_FALSE, &TG[0][0]);
 }
 
 void MyGLWidget::projectTransform ()
@@ -341,6 +350,14 @@ void MyGLWidget::keyPressEvent (QKeyEvent *e)
       modelTransformPatricio();
       escalaTerra = escalaTerra + 0.015;
       modelTransformTerra();
+      break;
+    case Qt::Key_K:
+      movPosFocus = -1.0;
+      modelTransformLlum();
+      break;
+    case Qt::Key_L:
+      movPosFocus = 1.0;
+      modelTransformLlum();
       break;
     case Qt::Key_Escape:
         exit(0);
