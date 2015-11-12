@@ -13,9 +13,9 @@ uniform mat4 view;
 uniform mat4 TG;
 
 // Valors per als components que necessitem dels focus de llum
-vec3 colFocus = vec3(0.8, 0.8, 0.8);
+vec3 colFocus = vec3(0, 0.8, 0.8);
 vec3 llumAmbient = vec3(0.2, 0.2, 0.2);
-vec3 posFocus = vec3(1, 1, 1);  // en SCA
+uniform vec3 posFocus = vec3(1, 1, 1);  // en SCA
 
 out vec3 fcolor;
 
@@ -58,4 +58,20 @@ void main()
 {	
     fcolor = matdiff;
     gl_Position = proj * view * TG * vec4 (vertex, 1.0);
+
+    vec4 L = view * TG * vec4 (vertex, 1.0);
+
+    // La posicio del focus de llum ha d'estar en SCO.
+    vec4 posFocusNormal = vec4 (posFocus, 1.0);
+    L = posFocusNormal - L;
+
+    // El vector normal a SCO.
+    mat3 NormalMatrix = inverse(transpose(mat3(view*TG)));
+    vec3 NormSCO = NormalMatrix*normal;
+
+    // El vertex ha d'estar normalitzat
+    vec4 vertexNormal = vec4 (vertex, 1.0);
+
+    fcolor = Lambert(NormSCO, normalize(L.xyz));
+    //fcolor = Phong(NormSCO, normalize(L.xyz), vertexNormal);
 }

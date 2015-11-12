@@ -259,6 +259,7 @@ void MyGLWidget::carregaShaders ()
   transLoc = glGetUniformLocation (program->programId(), "TG");
   projLoc = glGetUniformLocation (program->programId(), "proj");
   viewLoc = glGetUniformLocation (program->programId(), "view");
+  posFocusLoc = glGetUniformLocation (program->programId(), "posFocus");
 }
 
 void MyGLWidget::modelTransformPatricio ()
@@ -321,6 +322,11 @@ void MyGLWidget::calculaCapsaModel ()
   centrePatr[0] = (minx+maxx)/2.0; centrePatr[1] = (miny+maxy)/2.0; centrePatr[2] = (minz+maxz)/2.0;
 }
 
+void MyGLWidget::carregaFocus()
+{
+    glUniform3fv(posFocusLoc, 1, &posFocus[0]);
+}
+
 void MyGLWidget::keyPressEvent (QKeyEvent *e)
 {
   switch (e->key())
@@ -357,6 +363,11 @@ void MyGLWidget::mouseMoveEvent(QMouseEvent *e)
   {
     // Fem la rotació
     angleY += (e->x() - xClick) * M_PI / 180.0;
+    /**
+    MOURE CAMARA SEGONS ROTES
+    posFocus += (e->x() - xClick) * M_PI / 180.0;
+    carregaFocus();
+    */
     viewTransform ();
   }
 
