@@ -9,7 +9,6 @@ MyGLWidget::MyGLWidget (QGLFormat &f, QWidget* parent) : QGLWidget(f, parent)
   xClick = yClick = 0;
   angleY = 0.0;
   DoingInteractive = NONE;
-  radiEsc = sqrt(3);
 }
 
 void MyGLWidget::initializeGL ()
@@ -23,12 +22,27 @@ void MyGLWidget::initializeGL ()
   glEnable(GL_DEPTH_TEST);
   carregaShaders ();
   createBuffers ();
-  projectTransform ();
-  viewTransform ();
+  updateModel();
+}
+
+void MyGLWidget::updateModel ()
+{
+    distance = 2*capsa.getRadi()*escala;
+    VRP = glm::vec3(0, 0, 0);
+    OBS = glm::vec3(0, 0, distance);
+    UP = glm::vec3(0, 1, 0);
+    ZNear = distance - capsa.getRadi()*escala;
+    ZFar = distance + capsa.getRadi()*escala;
+    FOVini = 2*asin(capsa.getRadi()*escala/distance);
+    resizeGL(width(), height());
+    projectTransform();
+    viewTransform();
 }
 
 void MyGLWidget::paintGL ()
 {
+  updateModel();
+
   // Esborrem el frame-buffer i el depth-buffer
   glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -69,6 +83,12 @@ void MyGLWidget::paintGL ()
 
 void MyGLWidget::resizeGL (int w, int h)
 {
+  ra = (float) w / (float) h;
+  if (ra < 1) {
+    FOV = 2*atan(tan(FOVini/2)/ra);
+  }
+  else FOV = FOVini;
+
   glViewport (0, 0, w, h);
 }
 
@@ -136,6 +156,8 @@ void MyGLWidget::createBuffers ()
 
   glVertexAttribPointer(matshinLoc, 1, GL_FLOAT, GL_FALSE, 0, 0);
   glEnableVertexAttribArray(matshinLoc);
+
+  // --------------------------- TERRA ------------------------
 
   // Dades del terra
   // VBO amb la posició dels vèrtexs
@@ -310,7 +332,7 @@ void MyGLWidget::projectTransform ()
 {
   //sempre mantenim la aspect ratio de la pantalla per evitar deformacions
   glm::mat4 Proj;  // Matriu de projecció
-  Proj = glm::perspective(M_PI/3.0, 1.0, radiEsc, 3.*radiEsc);
+  Proj = glm::perspective(FOV, ra, ZNear, ZFar);
 
   glUniformMatrix4fv (projLoc, 1, GL_FALSE, &Proj[0][0]);
 }
@@ -318,7 +340,7 @@ void MyGLWidget::projectTransform ()
 void MyGLWidget::viewTransform ()
 {
   glm::mat4 View;  // Matriu de posició i orientació
-  View = glm::translate(glm::mat4(1.f), glm::vec3(0, 0, -2*radiEsc));
+  View = glm::translate(glm::mat4(1.f), glm::vec3(0, 0, -distance));
   View = glm::rotate(View, -angleY, glm::vec3(0, 1, 0));
 
   glUniformMatrix4fv (viewLoc, 1, GL_FALSE, &View[0][0]);
@@ -327,27 +349,20 @@ void MyGLWidget::viewTransform ()
 void MyGLWidget::calculaCapsaModel ()
 {
   // Càlcul capsa contenidora i valors transformacions inicials
-  float minx, miny, minz, maxx, maxy, maxz;
-  minx = maxx = patr.vertices()[0];
-  miny = maxy = patr.vertices()[1];
-  minz = maxz = patr.vertices()[2];
+  capsa.minx = capsa.maxx = patr.vertices()[0];
+  capsa.miny = capsa.maxy = patr.vertices()[1];
+  capsa.minz = capsa.maxz = patr.vertices()[2];
   for (unsigned int i = 3; i < patr.vertices().size(); i+=3)
   {
-    if (patr.vertices()[i+0] < minx)
-      minx = patr.vertices()[i+0];
-    if (patr.vertices()[i+0] > maxx)
-      maxx = patr.vertices()[i+0];
-    if (patr.vertices()[i+1] < miny)
-      miny = patr.vertices()[i+1];
-    if (patr.vertices()[i+1] > maxy)
-      maxy = patr.vertices()[i+1];
-    if (patr.vertices()[i+2] < minz)
-      minz = patr.vertices()[i+2];
-    if (patr.vertices()[i+2] > maxz)
-      maxz = patr.vertices()[i+2];
+    if (patr.vertices()[i+0] < capsa.minx) capsa.minx = patr.vertices()[i+0];
+    if (patr.vertices()[i+0] > capsa.maxx) capsa.maxx = patr.vertices()[i+0];
+    if (patr.vertices()[i+1] < capsa.miny) capsa.miny = patr.vertices()[i+1];
+    if (patr.vertices()[i+1] > capsa.maxy) capsa.maxy = patr.vertices()[i+1];
+    if (patr.vertices()[i+2] < capsa.minz) capsa.minz = patr.vertices()[i+2];
+    if (patr.vertices()[i+2] > capsa.maxz) capsa.maxz = patr.vertices()[i+2];
   }
-  escala = 2.0/(maxy-miny);
-  centrePatr[0] = (minx+maxx)/2.0; centrePatr[1] = (miny+maxy)/2.0; centrePatr[2] = (minz+maxz)/2.0;
+  escala = 2.0/(capsa.maxy-capsa.miny);
+  centrePatr = capsa.getCentre();
 }
 
 void MyGLWidget::carregaFocus()

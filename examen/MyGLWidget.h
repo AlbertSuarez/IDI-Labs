@@ -37,6 +37,7 @@ class MyGLWidget : public QGLWidget
 
   private:
     void createBuffers ();
+    void updateModel();
     void carregaShaders ();
     void projectTransform ();
     void viewTransform ();
@@ -56,9 +57,21 @@ class MyGLWidget : public QGLWidget
     Model patr, patrUP;
     // paràmetres calculats a partir de la capsa contenidora del model
     glm::vec3 centrePatr;
-    float escala;
-    double radiEsc;
-    glm::vec3 posFocus;
+    float escala, distance, FOVini, FOV, ZNear, ZFar, ra;
+    glm::vec3 posFocus, OBS, VRP, UP;
+
+    struct Capsa {
+        float minx, miny, minz, maxx, maxy, maxz;
+
+        glm::vec3 getCentre() {
+            return glm::vec3((minx+maxx)/2.0, (miny+maxy)/2.0, (minz+maxz)/2.0);
+        }
+
+        float getRadi() {
+            return sqrt((maxx-minx)*(maxx-minx)+(maxy-miny)*(maxy-miny)+(maxz-minz)*(maxz-minz))/2;
+        }
+    };
+    Capsa capsa;
 
     typedef  enum {NONE, ROTATE} InteractiveAction;
     InteractiveAction DoingInteractive;
