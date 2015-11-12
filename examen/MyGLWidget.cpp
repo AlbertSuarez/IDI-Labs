@@ -7,7 +7,6 @@ MyGLWidget::MyGLWidget (QGLFormat &f, QWidget* parent) : QGLWidget(f, parent)
 {
   setFocusPolicy(Qt::ClickFocus);  // per rebre events de teclat
   xClick = yClick = 0;
-  angleX = 0.0;
   angleY = 0.0;
   DoingInteractive = NONE;
   radiEsc = sqrt(3);
@@ -61,7 +60,7 @@ void MyGLWidget::createBuffers ()
 {
   // Carreguem el model de l'OBJ - Atenció! Abans de crear els buffers!
   //patr.load("/assig/idi/models/Patricio.obj");
-  patr.load("/assig/idi/models/Patricio.obj");
+  patr.load("./models/Patricio.obj");
 
   // Calculem la capsa contenidora del model
   calculaCapsaModel ();
@@ -137,8 +136,6 @@ void MyGLWidget::createBuffers ()
 	glm::vec3(1.0, -1.0, -1.0),
 	glm::vec3(1.0, 1.0, -1.0)
   }; 
-  centreTerra = glm::vec3 (0,0,0);
-  escalaTerra = 1.0;
 
   // VBO amb la normal de cada vèrtex
   glm::vec3 norm1 (0,1,0);
@@ -262,8 +259,6 @@ void MyGLWidget::carregaShaders ()
   transLoc = glGetUniformLocation (program->programId(), "TG");
   projLoc = glGetUniformLocation (program->programId(), "proj");
   viewLoc = glGetUniformLocation (program->programId(), "view");
-  colFocusLoc = glGetUniformLocation (program->programId(), "colFocus");
-  posFocusLoc = glGetUniformLocation (program->programId(), "posFocus");
 }
 
 void MyGLWidget::modelTransformPatricio ()
@@ -278,15 +273,8 @@ void MyGLWidget::modelTransformPatricio ()
 void MyGLWidget::modelTransformTerra ()
 {
   glm::mat4 TG;  // Matriu de transformació
-  TG = glm::scale(TG, glm::vec3(escalaTerra, escalaTerra, escalaTerra));
-  TG = glm::translate(TG, -centreTerra);
+  TG = glm::mat4(1.f);
   glUniformMatrix4fv (transLoc, 1, GL_FALSE, &TG[0][0]);
-}
-
-void MyGLWidget::carregaLlum ()
-{
-    glUniform3fv(posFocusLoc, 1, &posFocus[0]);
-    glUniform3fv(colFocusLoc, 1, &colFocus[0]);
 }
 
 void MyGLWidget::projectTransform ()
@@ -303,7 +291,6 @@ void MyGLWidget::viewTransform ()
   glm::mat4 View;  // Matriu de posició i orientació
   View = glm::translate(glm::mat4(1.f), glm::vec3(0, 0, -2*radiEsc));
   View = glm::rotate(View, -angleY, glm::vec3(0, 1, 0));
-  View = glm::rotate(View, -angleX, glm::vec3(1, 0, 0));
 
   glUniformMatrix4fv (viewLoc, 1, GL_FALSE, &View[0][0]);
 }
@@ -311,6 +298,7 @@ void MyGLWidget::viewTransform ()
 void MyGLWidget::calculaCapsaModel ()
 {
   // Càlcul capsa contenidora i valors transformacions inicials
+  float minx, miny, minz, maxx, maxy, maxz;
   minx = maxx = patr.vertices()[0];
   miny = maxy = patr.vertices()[1];
   minz = maxz = patr.vertices()[2];
@@ -337,54 +325,6 @@ void MyGLWidget::keyPressEvent (QKeyEvent *e)
 {
   switch (e->key())
   {
-    // Disminueixes i augmentes el zoom.
-    case Qt::Key_Minus:
-      escala = escala - 0.03/(maxy-miny);
-      modelTransformPatricio();
-      escalaTerra = escalaTerra - 0.015;
-      modelTransformTerra();
-      break;
-    case Qt::Key_Plus:
-      escala = escala + 0.03/(maxy-miny);
-      modelTransformPatricio();
-      escalaTerra = escalaTerra + 0.015;
-      modelTransformTerra();
-      break;
-    // Mous la posicio de la llum en x, y i z.
-    case Qt::Key_A:
-      posFocus.x -= 0.2;
-      carregaLlum();
-      break;
-    case Qt::Key_D:
-      posFocus.x += 0.2;
-      carregaLlum();
-      break;
-    case Qt::Key_S:
-      posFocus.y -= 0.2;
-      carregaLlum();
-      break;
-    case Qt::Key_W:
-      posFocus.y += 0.2;
-      carregaLlum();
-      break;
-    case Qt::Key_Q:
-      posFocus.z -= 0.2;
-      carregaLlum();
-      break;
-    case Qt::Key_E:
-      posFocus.z += 0.2;
-      carregaLlum();
-      break;
-    // Canvies la intensitat de la llum blanca.
-    case Qt::Key_M:
-      colFocus += 0.1;
-      carregaLlum();
-      break;
-    case Qt::Key_N:
-      colFocus -= 0.1;
-      carregaLlum();
-      break;
-    // Surts
     case Qt::Key_Escape:
         exit(0);
 
@@ -416,7 +356,6 @@ void MyGLWidget::mouseMoveEvent(QMouseEvent *e)
   if (DoingInteractive == ROTATE)
   {
     // Fem la rotació
-    angleX += (e->y() - yClick) * M_PI / 180.0;
     angleY += (e->x() - xClick) * M_PI / 180.0;
     viewTransform ();
   }
