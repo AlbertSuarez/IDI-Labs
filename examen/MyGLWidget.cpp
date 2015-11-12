@@ -79,6 +79,26 @@ void MyGLWidget::paintGL ()
 
   // Pintem l'escena
   glDrawArrays(GL_TRIANGLES, 0, patr.faces().size()*3);
+
+  // ------------------- PATRICIO PETIT --------------
+
+  // Activem el VAO per a pintar el Patricio
+  glBindVertexArray (VAO_Patr);
+
+  modelTransformPatricio3 ();
+
+  // Pintem l'escena
+  glDrawArrays(GL_TRIANGLES, 0, patr.faces().size()*3);
+
+  // ----------------------- COW ---------------------
+
+  // Activem el VAO per a pintar el Patricio
+  glBindVertexArray (VAO_Cow);
+
+  modelTransformCow ();
+
+  // Pintem l'escena
+  glDrawArrays(GL_TRIANGLES, 0, cow.faces().size()*3);
   
   // ---------------------- TANCAR -------------------
 
@@ -98,10 +118,12 @@ void MyGLWidget::resizeGL (int w, int h)
 
 void MyGLWidget::createBuffers ()
 {
+
+  // ------------------- PATRICIO -----------------------
+
   // Carreguem el model de l'OBJ - Atenció! Abans de crear els buffers!
   //patr.load("/assig/idi/models/Patricio.obj");
   patr.load("./models/Patricio.obj");
-  patrUP = patr;
 
   // Calculem la capsa contenidora del model
   calculaCapsaModel ();
@@ -157,6 +179,69 @@ void MyGLWidget::createBuffers ()
   glGenBuffers(1, &VBO_PatrMatshin);
   glBindBuffer(GL_ARRAY_BUFFER, VBO_PatrMatshin);
   glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat)*patr.faces().size()*3, patr.VBO_matshin(), GL_STATIC_DRAW);
+
+  glVertexAttribPointer(matshinLoc, 1, GL_FLOAT, GL_FALSE, 0, 0);
+  glEnableVertexAttribArray(matshinLoc);
+
+  // --------------------------- COW --------------------------
+
+  // Carreguem el model de l'OBJ - Atenció! Abans de crear els buffers!
+  cow.load("./models/cow.obj");
+
+  // Calculem la capsa contenidora del model
+  calculaCapsaModelCow();
+
+  // Creació del Vertex Array Object del Cow
+  glGenVertexArrays(1, &VAO_Cow);
+  glBindVertexArray(VAO_Cow);
+
+  // Creació dels buffers del model cow
+  // Buffer de posicions
+  glGenBuffers(1, &VBO_CowPos);
+  glBindBuffer(GL_ARRAY_BUFFER, VBO_CowPos);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat)*cow.faces().size()*3*3, cow.VBO_vertices(), GL_STATIC_DRAW);
+
+  // Activem l'atribut vertexLoc
+  glVertexAttribPointer(vertexLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
+  glEnableVertexAttribArray(vertexLoc);
+
+  // Buffer de normals
+  glGenBuffers(1, &VBO_CowNorm);
+  glBindBuffer(GL_ARRAY_BUFFER, VBO_CowNorm);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat)*cow.faces().size()*3*3, cow.VBO_normals(), GL_STATIC_DRAW);
+
+  glVertexAttribPointer(normalLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
+  glEnableVertexAttribArray(normalLoc);
+
+  // En lloc del color, ara passem tots els paràmetres dels materials
+  // Buffer de component ambient
+  glGenBuffers(1, &VBO_CowMatamb);
+  glBindBuffer(GL_ARRAY_BUFFER, VBO_CowMatamb);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat)*cow.faces().size()*3*3, cow.VBO_matamb(), GL_STATIC_DRAW);
+
+  glVertexAttribPointer(matambLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
+  glEnableVertexAttribArray(matambLoc);
+
+  // Buffer de component difusa
+  glGenBuffers(1, &VBO_CowMatdiff);
+  glBindBuffer(GL_ARRAY_BUFFER, VBO_CowMatdiff);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat)*cow.faces().size()*3*3, cow.VBO_matdiff(), GL_STATIC_DRAW);
+
+  glVertexAttribPointer(matdiffLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
+  glEnableVertexAttribArray(matdiffLoc);
+
+  // Buffer de component especular
+  glGenBuffers(1, &VBO_CowMatspec);
+  glBindBuffer(GL_ARRAY_BUFFER, VBO_CowMatspec);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat)*cow.faces().size()*3*3, cow.VBO_matspec(), GL_STATIC_DRAW);
+
+  glVertexAttribPointer(matspecLoc, 3, GL_FLOAT, GL_FALSE, 0, 0);
+  glEnableVertexAttribArray(matspecLoc);
+
+  // Buffer de component shininness
+  glGenBuffers(1, &VBO_CowMatshin);
+  glBindBuffer(GL_ARRAY_BUFFER, VBO_CowMatshin);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat)*cow.faces().size()*3, cow.VBO_matshin(), GL_STATIC_DRAW);
 
   glVertexAttribPointer(matshinLoc, 1, GL_FLOAT, GL_FALSE, 0, 0);
   glEnableVertexAttribArray(matshinLoc);
@@ -319,8 +404,31 @@ void MyGLWidget::modelTransformPatricio2 ()
   glm::mat4 TG;  // Matriu de transformació
   TG = glm::translate(TG, glm::vec3(0.0, 2, 0.0));
   TG = glm::rotate(TG, (float)M_PI, glm::vec3(0.0, 0.0, 1.0));          // rotate(matriu, graus, vector director)
-  TG = glm::scale(TG, glm::vec3(escala, escala, escala));
+  TG = glm::scale(TG, glm::vec3(escala));
   TG = glm::translate(TG, -centrePatr);
+
+  glUniformMatrix4fv (transLoc, 1, GL_FALSE, &TG[0][0]);
+}
+
+void MyGLWidget::modelTransformPatricio3 ()
+{
+  glm::mat4 TG;  // Matriu de transformació
+  TG = glm::scale(TG, glm::vec3(escalaPatrPetit));
+  TG = glm::translate(TG, glm::vec3(1, -0.5, 0));
+  TG = glm::translate(TG, -centrebaseCow);
+
+  glUniformMatrix4fv (transLoc, 1, GL_FALSE, &TG[0][0]);
+}
+
+void MyGLWidget::modelTransformCow ()
+{
+  glm::mat4 TG;  // Matriu de transformació
+
+  TG = glm::scale(TG, glm::vec3(escalaCow));
+  TG = glm::translate(TG, glm::vec3(1,-1,0));
+  TG = glm::rotate(TG, (float)-M_PI/(float)2.0, glm::vec3(0,0,1));
+  TG = glm::rotate(TG, (float)-M_PI/(float)2.0, glm::vec3(0,1,0));
+  TG = glm::translate(TG, -centrebaseCow);
 
   glUniformMatrix4fv (transLoc, 1, GL_FALSE, &TG[0][0]);
 }
@@ -346,6 +454,7 @@ void MyGLWidget::viewTransform ()
   glm::mat4 View;  // Matriu de posició i orientació
   View = glm::translate(glm::mat4(1.f), glm::vec3(0, 0, -distance));
   View = glm::rotate(View, -angleY, glm::vec3(0, 1, 0));
+  View = glm::rotate(View, -angleX, glm::vec3(1, 0, 0));
 
   glUniformMatrix4fv (viewLoc, 1, GL_FALSE, &View[0][0]);
 }
@@ -366,7 +475,28 @@ void MyGLWidget::calculaCapsaModel ()
     if (patr.vertices()[i+2] > capsa.maxz) capsa.maxz = patr.vertices()[i+2];
   }
   escala = 2.0/(capsa.maxy-capsa.miny);
+  escalaPatrPetit = 0.25/(capsa.maxy-capsa.miny);
   centrePatr = capsa.getCentre();
+  centrebasePatr = capsa.getBaseCentre();
+}
+
+void MyGLWidget::calculaCapsaModelCow ()
+{
+  // Càlcul capsa contenidora i valors transformacions inicials
+  capsaCow.minx = capsa.maxx = cow.vertices()[0];
+  capsaCow.miny = capsa.maxy = cow.vertices()[1];
+  capsaCow.minz = capsa.maxz = cow.vertices()[2];
+  for (unsigned int i = 3; i < cow.vertices().size(); i+=3)
+  {
+    if (cow.vertices()[i+0] < capsaCow.minx) capsaCow.minx = cow.vertices()[i+0];
+    if (cow.vertices()[i+0] > capsaCow.maxx) capsaCow.maxx = cow.vertices()[i+0];
+    if (cow.vertices()[i+1] < capsaCow.miny) capsaCow.miny = cow.vertices()[i+1];
+    if (cow.vertices()[i+1] > capsaCow.maxy) capsaCow.maxy = cow.vertices()[i+1];
+    if (cow.vertices()[i+2] < capsaCow.minz) capsaCow.minz = cow.vertices()[i+2];
+    if (cow.vertices()[i+2] > capsaCow.maxz) capsaCow.maxz = cow.vertices()[i+2];
+  }
+  escalaCow = 0.5/(capsaCow.maxy-capsaCow.miny);
+  centrebaseCow = capsaCow.getBaseCentre();
 }
 
 void MyGLWidget::carregaFocus()
@@ -409,6 +539,7 @@ void MyGLWidget::mouseMoveEvent(QMouseEvent *e)
   if (DoingInteractive == ROTATE)
   {
     // Fem la rotació
+    angleX += (e->y() - yClick) * M_PI / 180.0;
     angleY += (e->x() - xClick) * M_PI / 180.0;
     viewTransform ();
   }

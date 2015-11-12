@@ -55,7 +55,9 @@ vec3 Phong (vec3 NormSCO, vec3 L, vec4 vertSCO)
 }
 
 void main()
-{	
+{
+
+    // LAMBERT SENSE BRILLO
     fcolor = matdiff;
 
     gl_Position = proj * view * TG * vec4 (vertex, 1.0);
@@ -68,7 +70,7 @@ void main()
 
     // El vector normal a SCO.
     mat3 NormalMatrix = inverse(transpose(mat3(view*TG)));
-    vec3 NormSCO = NormalMatrix*normal;
+    vec3 NormSCO = normalize(NormalMatrix*normal);
 
     fcolor = Lambert(NormSCO, normalize(L.xyz));
     //fcolor = Phong(NormSCO, normalize(L.xyz), vec4 (vertex, 1.0));
