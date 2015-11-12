@@ -7,7 +7,7 @@ MyGLWidget::MyGLWidget (QGLFormat &f, QWidget* parent) : QGLWidget(f, parent)
 {
   setFocusPolicy(Qt::ClickFocus);  // per rebre events de teclat
   xClick = yClick = 0;
-  angleY = 0.0;
+  angleY = angleX = 0.0;
   DoingInteractive = NONE;
 }
 

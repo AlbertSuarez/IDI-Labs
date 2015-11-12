@@ -72,7 +72,7 @@ class MyGLWidget : public QGLWidget
         }
 
         float getRadiv2() {
-            return sqrt((maxx-minx)*(maxx-minx)+(2*maxy-miny)*(2*maxy-miny)+(maxz-minz)*(maxz-minz))/2;
+            return sqrt((maxx-minx)*(maxx-minx)+8*(maxy-miny)*(maxy-miny)+(maxz-minz)*(maxz-minz))/2;
         }
     };
     Capsa capsa;
@@ -80,5 +80,5 @@ class MyGLWidget : public QGLWidget
     typedef  enum {NONE, ROTATE} InteractiveAction;
     InteractiveAction DoingInteractive;
     int xClick, yClick;
-    float angleY;
+    float angleY, angleX;
 };
