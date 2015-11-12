@@ -3,6 +3,7 @@
 #include <QGLShader>
 #include <QGLShaderProgram>
 #include <QKeyEvent>
+#include <cmath>
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 
@@ -40,7 +41,8 @@ class MyGLWidget : public QGLWidget
     void projectTransform ();
     void viewTransform ();
     void modelTransformTerra ();
-    void modelTransformPatricio ();
+    void modelTransformPatricio1 ();
+    void modelTransformPatricio2 ();
     void calculaCapsaModel ();
     void carregaFocus();
 
@@ -51,7 +53,7 @@ class MyGLWidget : public QGLWidget
 
     GLuint transLoc, projLoc, viewLoc, posFocusLoc;
     GLuint vertexLoc, normalLoc, matambLoc, matdiffLoc, matspecLoc, matshinLoc;
-    Model patr;
+    Model patr, patrUP;
     // paràmetres calculats a partir de la capsa contenidora del model
     glm::vec3 centrePatr;
     float escala;

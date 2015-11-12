@@ -32,6 +32,8 @@ void MyGLWidget::paintGL ()
   // Esborrem el frame-buffer i el depth-buffer
   glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+  // ---------------------- TERRA ---------------------
+
   // Activem el VAO per a pintar el terra 
   glBindVertexArray (VAO_Terra);
 
@@ -40,14 +42,28 @@ void MyGLWidget::paintGL ()
   // pintem
   glDrawArrays(GL_TRIANGLES, 0, 12);
 
+  // ------------------- PRIMER PATRICIO --------------
+
   // Activem el VAO per a pintar el Patricio
   glBindVertexArray (VAO_Patr);
 
-  modelTransformPatricio ();
+  modelTransformPatricio1 ();
+
+  // Pintem l'escena
+  glDrawArrays(GL_TRIANGLES, 0, patr.faces().size()*3);
+
+  // ------------------- SEGON PATRICIO --------------
+
+  // Activem el VAO per a pintar el Patricio
+  glBindVertexArray (VAO_Patr);
+
+  modelTransformPatricio2 ();
 
   // Pintem l'escena
   glDrawArrays(GL_TRIANGLES, 0, patr.faces().size()*3);
   
+  // ---------------------- TANCAR -------------------
+
   glBindVertexArray(0);
 }
 
@@ -61,6 +77,7 @@ void MyGLWidget::createBuffers ()
   // Carreguem el model de l'OBJ - Atenció! Abans de crear els buffers!
   //patr.load("/assig/idi/models/Patricio.obj");
   patr.load("./models/Patricio.obj");
+  patrUP = patr;
 
   // Calculem la capsa contenidora del model
   calculaCapsaModel ();
@@ -262,12 +279,23 @@ void MyGLWidget::carregaShaders ()
   posFocusLoc = glGetUniformLocation (program->programId(), "posFocus");
 }
 
-void MyGLWidget::modelTransformPatricio ()
+void MyGLWidget::modelTransformPatricio1 ()
 {
   glm::mat4 TG;  // Matriu de transformació
-  TG = glm::scale(TG, glm::vec3(escala, escala, escala));
+  TG = glm::scale(TG, glm::vec3(escala));
   TG = glm::translate(TG, -centrePatr);
   
+  glUniformMatrix4fv (transLoc, 1, GL_FALSE, &TG[0][0]);
+}
+
+void MyGLWidget::modelTransformPatricio2 ()
+{
+  glm::mat4 TG;  // Matriu de transformació
+  TG = glm::translate(TG, glm::vec3(0.0, 2, 0.0));
+  TG = glm::rotate(TG, (float)M_PI, glm::vec3(0.0, 0.0, 1.0));          // rotate(matriu, graus, vector director)
+  TG = glm::scale(TG, glm::vec3(escala, escala, escala));
+  TG = glm::translate(TG, -centrePatr);
+
   glUniformMatrix4fv (transLoc, 1, GL_FALSE, &TG[0][0]);
 }
 
@@ -363,11 +391,6 @@ void MyGLWidget::mouseMoveEvent(QMouseEvent *e)
   {
     // Fem la rotació
     angleY += (e->x() - xClick) * M_PI / 180.0;
-    /**
-    MOURE CAMARA SEGONS ROTES
-    posFocus += (e->x() - xClick) * M_PI / 180.0;
-    carregaFocus();
-    */
     viewTransform ();
   }
 
