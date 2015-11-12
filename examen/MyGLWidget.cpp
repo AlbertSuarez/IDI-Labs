@@ -27,13 +27,17 @@ void MyGLWidget::initializeGL ()
 
 void MyGLWidget::updateModel ()
 {
-    distance = 2*capsa.getRadi()*escala;
+    float radi;
+    //radi = capsa.getRadi();           // UN PATRICIO
+    radi = capsa.getRadiv2();         // DOS PATRICIOS
+
+    distance = 2*radi*escala;
     VRP = glm::vec3(0, 0, 0);
     OBS = glm::vec3(0, 0, distance);
     UP = glm::vec3(0, 1, 0);
-    ZNear = distance - capsa.getRadi()*escala;
-    ZFar = distance + capsa.getRadi()*escala;
-    FOVini = 2*asin(capsa.getRadi()*escala/distance);
+    ZNear = distance - radi*escala;
+    ZFar = distance + radi*escala;
+    FOVini = 2*asin(radi*escala/distance);
     resizeGL(width(), height());
     projectTransform();
     viewTransform();

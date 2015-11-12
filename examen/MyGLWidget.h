@@ -70,6 +70,10 @@ class MyGLWidget : public QGLWidget
         float getRadi() {
             return sqrt((maxx-minx)*(maxx-minx)+(maxy-miny)*(maxy-miny)+(maxz-minz)*(maxz-minz))/2;
         }
+
+        float getRadiv2() {
+            return sqrt((maxx-minx)*(maxx-minx)+(2*maxy-miny)*(2*maxy-miny)+(maxz-minz)*(maxz-minz))/2;
+        }
     };
     Capsa capsa;
 
