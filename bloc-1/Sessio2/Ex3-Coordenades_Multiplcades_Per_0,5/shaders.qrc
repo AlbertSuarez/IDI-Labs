@@ -1,0 +1,6 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource prefix = "/shaders">
+ <file>vertshad.vert</file>
+ <file>fragshad.frag</file>
+</qresource>
+</RCC>
