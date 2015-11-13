@@ -9,6 +9,7 @@ MyGLWidget::MyGLWidget (QGLFormat &f, QWidget* parent) : QGLWidget(f, parent)
   xClick = yClick = 0;
   angleY = angleX = 0.0;
   DoingInteractive = NONE;
+  zoom = 0.0;
 }
 
 void MyGLWidget::initializeGL ()
@@ -37,7 +38,7 @@ void MyGLWidget::updateModel ()
     UP = glm::vec3(0, 1, 0);
     ZNear = distance - radi*escala;
     ZFar = distance + radi*escala;
-    FOVini = 2*asin(radi*escala/distance);
+    FOVini = 2*asin(radi*escala/distance) - zoom;
     resizeGL(width(), height());
     projectTransform();
     viewTransform();
@@ -413,9 +414,9 @@ void MyGLWidget::modelTransformPatricio2 ()
 void MyGLWidget::modelTransformPatricio3 ()
 {
   glm::mat4 TG;  // Matriu de transformació
-  TG = glm::scale(TG, glm::vec3(escalaPatrPetit));
   TG = glm::translate(TG, glm::vec3(1, -0.5, 0));
-  TG = glm::translate(TG, -centrebaseCow);
+  TG = glm::scale(TG, glm::vec3(escalaPatrPetit));
+  TG = glm::translate(TG, -centrebasePatr);
 
   glUniformMatrix4fv (transLoc, 1, GL_FALSE, &TG[0][0]);
 }
@@ -423,9 +424,8 @@ void MyGLWidget::modelTransformPatricio3 ()
 void MyGLWidget::modelTransformCow ()
 {
   glm::mat4 TG;  // Matriu de transformació
-
+  TG = glm::translate(TG, glm::vec3(1, -1, 0));
   TG = glm::scale(TG, glm::vec3(escalaCow));
-  TG = glm::translate(TG, glm::vec3(1,-1,0));
   TG = glm::rotate(TG, (float)-M_PI/(float)2.0, glm::vec3(0,0,1));
   TG = glm::rotate(TG, (float)-M_PI/(float)2.0, glm::vec3(0,1,0));
   TG = glm::translate(TG, -centrebaseCow);
@@ -508,6 +508,12 @@ void MyGLWidget::keyPressEvent (QKeyEvent *e)
 {
   switch (e->key())
   {
+    case Qt::Key_Plus:
+        zoom += 0.1;
+        break;
+    case Qt::Key_Minus:
+        zoom -= 0.1;
+        break;
     case Qt::Key_Escape:
         exit(0);
 

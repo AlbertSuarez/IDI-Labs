@@ -61,7 +61,7 @@ class MyGLWidget : public QGLWidget
     Model patr, cow;
     // paràmetres calculats a partir de la capsa contenidora del model
     glm::vec3 centrePatr, centrebasePatr, centrebaseCow;
-    float escala, escalaPatrPetit, escalaCow, distance, FOVini, FOV, ZNear, ZFar, ra;
+    float escala, escalaPatrPetit, escalaCow, distance, FOVini, FOV, ZNear, ZFar, ra, zoom;
     glm::vec3 posFocus, OBS, VRP, UP;
 
     struct Capsa {
@@ -80,7 +80,7 @@ class MyGLWidget : public QGLWidget
         }
 
         float getRadiv2() {
-            return sqrt((maxx-minx)*(maxx-minx)+8*(maxy-miny)*(maxy-miny)+(maxz-minz)*(maxz-minz))/2;
+            return sqrt((maxx-minx)*(maxx-minx)+(2*(maxy-miny))*(2*(maxy-miny))+(maxz-minz)*(maxz-minz))/2;
         }
     };
     Capsa capsa, capsaCow;
