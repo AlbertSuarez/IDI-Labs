@@ -61,7 +61,7 @@ class MyGLWidget : public QGLWidget
     Model patr, cow;
     // paràmetres calculats a partir de la capsa contenidora del model
     glm::vec3 centrePatr, centrebasePatr, centreCow, centrebaseCow;
-    float escala, escalaPatrPetit, escalaCow, distance, FOVini, FOV, ZNear, ZFar, ra, zoom;
+    float escala, escalaPatrPetit, escalaCow, distance, FOVini, FOV, ZNear, ZFar, ra, zoom, angle;
     glm::vec3 posFocus, OBS, VRP, UP;
 
     struct Capsa {

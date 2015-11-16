@@ -8,6 +8,7 @@ MyGLWidget::MyGLWidget (QGLFormat &f, QWidget* parent) : QGLWidget(f, parent)
   setFocusPolicy(Qt::ClickFocus);  // per rebre events de teclat
   xClick = yClick = 0;
   angleY = angleX = 0.0;
+  angle = 0.0;
   DoingInteractive = NONE;
   zoom = 0.0;
 }
@@ -416,6 +417,7 @@ void MyGLWidget::modelTransformPatricio3 ()
   glm::mat4 TG;  // Matriu de transformació
   TG = glm::translate(TG, glm::vec3(1, -0.5, 0));
   TG = glm::scale(TG, glm::vec3(escalaPatrPetit));
+  TG = glm::rotate(TG, angle, glm::vec3(0,1,0));
   TG = glm::translate(TG, -centrePatr);
 
   glUniformMatrix4fv (transLoc, 1, GL_FALSE, &TG[0][0]);
@@ -426,6 +428,7 @@ void MyGLWidget::modelTransformCow ()
   glm::mat4 TG;  // Matriu de transformació
   TG = glm::translate(TG, glm::vec3(1, -1, 0));
   TG = glm::scale(TG, glm::vec3(escalaCow));
+  TG = glm::rotate(TG, angle, glm::vec3(0,1,0));
   TG = glm::rotate(TG, (float)-M_PI/(float)2.0, glm::vec3(0,0,1));
   TG = glm::rotate(TG, (float)-M_PI/(float)2.0, glm::vec3(0,1,0));
   TG = glm::translate(TG, -centreCow);
@@ -514,6 +517,11 @@ void MyGLWidget::keyPressEvent (QKeyEvent *e)
         break;
     case Qt::Key_Minus:
         zoom -= 0.1;
+        break;
+    case Qt::Key_R:
+        angle += (float)M_PI/6.0;
+        modelTransformCow();
+        modelTransformPatricio3();
         break;
     case Qt::Key_Escape:
         exit(0);
