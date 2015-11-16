@@ -60,7 +60,7 @@ class MyGLWidget : public QGLWidget
     GLuint vertexLoc, normalLoc, matambLoc, matdiffLoc, matspecLoc, matshinLoc;
     Model patr, cow;
     // paràmetres calculats a partir de la capsa contenidora del model
-    glm::vec3 centrePatr, centrebasePatr, centrebaseCow;
+    glm::vec3 centrePatr, centrebasePatr, centreCow, centrebaseCow;
     float escala, escalaPatrPetit, escalaCow, distance, FOVini, FOV, ZNear, ZFar, ra, zoom;
     glm::vec3 posFocus, OBS, VRP, UP;
 

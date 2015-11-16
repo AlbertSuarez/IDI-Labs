@@ -416,7 +416,7 @@ void MyGLWidget::modelTransformPatricio3 ()
   glm::mat4 TG;  // Matriu de transformació
   TG = glm::translate(TG, glm::vec3(1, -0.5, 0));
   TG = glm::scale(TG, glm::vec3(escalaPatrPetit));
-  TG = glm::translate(TG, -centrebasePatr);
+  TG = glm::translate(TG, -centrePatr);
 
   glUniformMatrix4fv (transLoc, 1, GL_FALSE, &TG[0][0]);
 }
@@ -428,7 +428,7 @@ void MyGLWidget::modelTransformCow ()
   TG = glm::scale(TG, glm::vec3(escalaCow));
   TG = glm::rotate(TG, (float)-M_PI/(float)2.0, glm::vec3(0,0,1));
   TG = glm::rotate(TG, (float)-M_PI/(float)2.0, glm::vec3(0,1,0));
-  TG = glm::translate(TG, -centrebaseCow);
+  TG = glm::translate(TG, -centreCow);
 
   glUniformMatrix4fv (transLoc, 1, GL_FALSE, &TG[0][0]);
 }
@@ -496,6 +496,7 @@ void MyGLWidget::calculaCapsaModelCow ()
     if (cow.vertices()[i+2] > capsaCow.maxz) capsaCow.maxz = cow.vertices()[i+2];
   }
   escalaCow = 0.5/(capsaCow.maxy-capsaCow.miny);
+  centreCow = capsaCow.getCentre();
   centrebaseCow = capsaCow.getBaseCentre();
 }
 
