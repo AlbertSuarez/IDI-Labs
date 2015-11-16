@@ -70,8 +70,9 @@ void main()
 
     // El vector normal a SCO.
     mat3 NormalMatrix = inverse(transpose(mat3(view*TG)));
-    vec3 NormSCO = normalize(NormalMatrix*normal);
-
+    //vec3 NormSCO = normalize(NormalMatrix*normal);			// NO BRILLANT
+    vec3 NormSCO = NormalMatrix*normal;					// BRILLANT
+    
     fcolor = Lambert(NormSCO, normalize(L.xyz));
     //fcolor = Phong(NormSCO, normalize(L.xyz), vec4 (vertex, 1.0));
 

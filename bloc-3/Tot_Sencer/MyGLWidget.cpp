@@ -148,12 +148,18 @@ void MyGLWidget::createBuffers ()
 	norm2, norm2, norm2, norm2, norm2, norm2  // la normal (0,0,1) per als dos últims triangles
   };
 
+  
+  
+  
   // Definim el material del terra
-  glm::vec3 amb(0.2,0,0.2);
-  glm::vec3 diff(0.8,0,0.8);
-  glm::vec3 spec(0,0,0);
-  float shin = 100;
+  glm::vec3 amb(0,0,1);
+  glm::vec3 diff(0,0,1);
+  glm::vec3 spec(0,0,1);
+  float shin = 10000;
 
+  
+  
+  
   // Fem que aquest material afecti a tots els vèrtexs per igual
   glm::vec3 matambterra[12] = {
 	amb, amb, amb, amb, amb, amb, amb, amb, amb, amb, amb, amb

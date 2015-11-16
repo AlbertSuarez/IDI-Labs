@@ -14,6 +14,9 @@ uniform mat4 TG;
 uniform vec3 colFocus;
 uniform vec3 posFocus;
 
+// ---------------- ELS POSSEM A SCO DIRECTAMENT -------------------
+
+
 // Valors per als components que necessitem dels focus de llum
 //vec3 colFocus = vec3(0.8, 0.8, 0.8);
 vec3 llumAmbient = vec3(0.2, 0.2, 0.2);
