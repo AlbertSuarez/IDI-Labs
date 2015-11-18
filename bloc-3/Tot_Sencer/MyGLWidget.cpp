@@ -319,14 +319,20 @@ void MyGLWidget::viewTransform ()
 
 void MyGLWidget::cameraTransform ()
 {
-  std::cout << "ABANS y = " << posFocus.y << std::endl;
+  /*std::cout << "ABANS y = " << posFocus.y << std::endl;
   std::cout << "ABANS x = " << posFocus.x << std::endl;
-  std::cout << "ABANS z = " << posFocus.z << std::endl;
+  std::cout << "ABANS z = " << posFocus.z << std::endl;*/
+
   posFocus.y = -2*radiEsc*sin(angleX);
   posFocus.x = 2*radiEsc*sin(angleY);
-  std::cout << "y = " << posFocus.y << std::endl;
+
+  //posFocus.z = posFocus.y*tan(angleX) + posFocus.x*tan(angleY);
+  //posFocus.x = tan(45)*(2*radiEsc)*sin(angleY) + tan(45)*(2*radiEsc)*sin(angleX);
+
+  /*std::cout << "y = " << posFocus.y << std::endl;
   std::cout << "x = " << posFocus.x << std::endl;
-  std::cout << "z = " << posFocus.z << std::endl;
+  std::cout << "z = " << posFocus.z << std::endl;*/
+
   carregaLlum();
 }
 
