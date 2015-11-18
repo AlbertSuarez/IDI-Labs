@@ -14,8 +14,8 @@ uniform mat4 TG;
 
 // Valors per als components que necessitem dels focus de llum
 uniform vec3 colFocus = vec3(0.8, 0.8, 0.8);
-vec3 llumAmbient = vec3(0.2, 0.2, 0.2);
-uniform vec3 posFocus = vec3(0, 0, 0);  // en SCA
+vec3 llumAmbient = vec3(0.0, 0.0, 0.0);
+uniform vec3 posFocus = vec3(1, 1, 1);  // en SCA
 
 out vec3 fcolor;
 
@@ -70,10 +70,10 @@ void main()
 
     // El vector normal a SCO.
     mat3 NormalMatrix = inverse(transpose(mat3(view*TG)));
-    //vec3 NormSCO = normalize(NormalMatrix*normal);			// NO BRILLANT
-    vec3 NormSCO = NormalMatrix*normal;					// BRILLANT
+    vec3 NormSCO = normalize(NormalMatrix*normal);                              // NO BRILLANT
+    //vec3 NormSCO = NormalMatrix*normal;					// BRILLANT
     
-    fcolor = Lambert(NormSCO, normalize(L.xyz));
-    //fcolor = Phong(NormSCO, normalize(L.xyz), vec4 (vertex, 1.0));
+    //fcolor = Lambert(NormSCO, normalize(L.xyz));
+    fcolor = Phong(NormSCO, normalize(L.xyz), vec4 (vertex, 1.0));
 
 }

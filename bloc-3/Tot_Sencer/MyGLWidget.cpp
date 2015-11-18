@@ -270,6 +270,9 @@ void MyGLWidget::carregaShaders ()
   viewLoc = glGetUniformLocation (program->programId(), "view");
   colFocusLoc = glGetUniformLocation (program->programId(), "colFocus");
   posFocusLoc = glGetUniformLocation (program->programId(), "posFocus");
+
+  colFocus = glm::vec3(0.8,0.8,0.8);
+  posFocus = glm::vec3(1,1,1);
 }
 
 void MyGLWidget::modelTransformPatricio ()
@@ -314,6 +317,17 @@ void MyGLWidget::viewTransform ()
   glUniformMatrix4fv (viewLoc, 1, GL_FALSE, &View[0][0]);
 }
 
+void MyGLWidget::cameraTransform ()
+{
+  std::cout << "ABANS y = " << posFocus.y << std::endl;
+  std::cout << "ABANS x = " << posFocus.x << std::endl;
+  posFocus.y = -2*radiEsc*sin(angleX);
+  posFocus.x = 2*radiEsc*sin(angleY);
+  std::cout << "y = " << posFocus.y << std::endl;
+  std::cout << "x = " << posFocus.x << std::endl;
+  carregaLlum();
+}
+
 void MyGLWidget::calculaCapsaModel ()
 {
   // Càlcul capsa contenidora i valors transformacions inicials
@@ -341,6 +355,7 @@ void MyGLWidget::calculaCapsaModel ()
 
 void MyGLWidget::keyPressEvent (QKeyEvent *e)
 {
+  std::cout << "POS FOCUS = " << posFocus.x << " " << posFocus.y << " " << posFocus.z << std::endl;
   switch (e->key())
   {
     // Disminueixes i augmentes el zoom.
@@ -425,6 +440,7 @@ void MyGLWidget::mouseMoveEvent(QMouseEvent *e)
     angleX += (e->y() - yClick) * M_PI / 180.0;
     angleY += (e->x() - xClick) * M_PI / 180.0;
     viewTransform ();
+    cameraTransform();
   }
 
   xClick = e->x();

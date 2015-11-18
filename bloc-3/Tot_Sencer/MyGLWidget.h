@@ -39,6 +39,7 @@ class MyGLWidget : public QGLWidget
     void carregaShaders ();
     void projectTransform ();
     void viewTransform ();
+    void cameraTransform ();
     void modelTransformTerra ();
     void modelTransformPatricio ();
     void carregaLlum ();
