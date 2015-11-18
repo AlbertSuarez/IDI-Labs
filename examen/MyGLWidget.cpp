@@ -11,6 +11,7 @@ MyGLWidget::MyGLWidget (QGLFormat &f, QWidget* parent) : QGLWidget(f, parent)
   angle = 0.0;
   DoingInteractive = NONE;
   zoom = 0.0;
+  movX = 0.0;
 }
 
 void MyGLWidget::initializeGL ()
@@ -29,18 +30,21 @@ void MyGLWidget::initializeGL ()
 
 void MyGLWidget::updateModel ()
 {
-    float radi;
+    //float radi;
     //radi = capsa.getRadi();           // UN PATRICIO
-    radi = capsa.getRadiv2();         // DOS PATRICIOS
+    //radi = capsa.getRadiv2();         // DOS PATRICIOS
+    //radi = glm::distance(glm::vec3(0,0,0), glm::vec3(capsa.maxx, capsa.maxy, capsa.maxz));
 
-    distance = 2*radi*escala;
-    VRP = glm::vec3(0, 0, 0);
-    OBS = glm::vec3(0, 0, distance);
+    VRP = glm::vec3(movX,0,0);
+    OBS = glm::vec3(-1, 1, -1);
     UP = glm::vec3(0, 1, 0);
-    ZNear = distance - radi*escala;
-    ZFar = distance + radi*escala;
-    FOVini = 2*asin(radi*escala/distance) - zoom;
-    //FOVini = (float)M_PI/3.0 + zoom;
+    distance = glm::distance(OBS, VRP);
+    //ZNear = distance - radi;
+    //ZFar = distance + radi;
+    ZNear = 0.1;
+    ZFar = 100000000;
+    //FOVini = 2*asin(radi*escala/distance) - zoom;
+    FOVini = (float)M_PI/3.0 - zoom;
     resizeGL(width(), height());
     projectTransform();
     viewTransform();
@@ -396,6 +400,7 @@ void MyGLWidget::carregaShaders ()
 void MyGLWidget::modelTransformPatricio1 ()
 {
   glm::mat4 TG;  // Matriu de transformació
+  TG = glm::translate(TG, glm::vec3(movX, 0, 0));
   TG = glm::scale(TG, glm::vec3(escala));
   TG = glm::translate(TG, -centrePatr);
   
@@ -428,10 +433,10 @@ void MyGLWidget::modelTransformCow ()
 {
   glm::mat4 TG;  // Matriu de transformació
   TG = glm::translate(TG, glm::vec3(1, -1, 0));
-  TG = glm::scale(TG, glm::vec3(escalaCow));
   TG = glm::rotate(TG, angle, glm::vec3(0,1,0));
   TG = glm::rotate(TG, (float)-M_PI/(float)2.0, glm::vec3(0,0,1));
   TG = glm::rotate(TG, (float)-M_PI/(float)2.0, glm::vec3(0,1,0));
+  TG = glm::scale(TG, glm::vec3(escalaCow));
   TG = glm::translate(TG, -centreCow);
 
   glUniformMatrix4fv (transLoc, 1, GL_FALSE, &TG[0][0]);
@@ -455,8 +460,11 @@ void MyGLWidget::projectTransform ()
 
 void MyGLWidget::viewTransform ()
 {
+  // view = glm::lookAt(OBS,VRP,UP)
+
   glm::mat4 View;  // Matriu de posició i orientació
-  View = glm::translate(glm::mat4(1.f), glm::vec3(0, 0, -distance));
+  View = glm::lookAt(OBS,VRP,UP);
+  //View = glm::translate(glm::mat4(1.f), glm::vec3(0, 0, -distance));
   View = glm::rotate(View, -angleY, glm::vec3(0, 1, 0));
   View = glm::rotate(View, -angleX, glm::vec3(1, 0, 0));
 
@@ -523,6 +531,14 @@ void MyGLWidget::keyPressEvent (QKeyEvent *e)
         angle += (float)M_PI/6.0;
         modelTransformCow();
         modelTransformPatricio3();
+        break;
+    case Qt::Key_K:
+        movX += 0.1;
+        modelTransformPatricio1();
+        break;
+    case Qt::Key_L:
+        movX -= 0.1;
+        modelTransformPatricio1();
         break;
     case Qt::Key_Escape:
         exit(0);
