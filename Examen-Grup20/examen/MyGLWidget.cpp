@@ -7,10 +7,13 @@ MyGLWidget::MyGLWidget (QGLFormat &f, QWidget* parent) : QGLWidget(f, parent)
 {
   setFocusPolicy(Qt::ClickFocus);  // per rebre events de teclat
   xClick = yClick = 0;
-  angleY = 0.0;
-  angleX = 0.0;
+  angleY = M_PI/5.;
+  angleX = M_PI/8.;
+  zoom = movZ = 0.0;
+  posFocus = glm::vec3(-5, 5, 5);
+  colFocus = glm::vec3(0.8, 0.8, 0.8);
+  cont = 0;
   DoingInteractive = NONE;
-  radiEsc = sqrt(3);
 }
 
 void MyGLWidget::initializeGL ()
@@ -19,23 +22,44 @@ void MyGLWidget::initializeGL ()
   glewExperimental = GL_TRUE;
   glewInit(); 
   glGetError();  // Reinicia la variable d'error d'OpenGL
-  fov = M_PI/3.0;
-  glClearColor (0.5, 0.7, 1.0, 1.0);  // defineix color de fons (d'esborrat)
-  glEnable(GL_DEPTH_TEST);
- posF= glm::vec3(0, 0, 0);
-  carregaShaders ();
-  modelPosLlum();
-  modelcolorLlum();
-  createBuffers ();
-  projectTransform ();
-  viewTransform ();
 
+  glClearColor(0.7, 0.7, 1.0, 1.0);  // defineix color de fons (d'esborrat)
+  glEnable(GL_DEPTH_TEST);
+  loadShaders();
+  createBuffers();
+  updateScene();
+}
+
+void MyGLWidget::updateScene ()
+{
+    float radi = boxPatricio.getRadi3();
+
+    distance = 2*radi;
+    //distance = 10.0;
+
+    VRP = glm::vec3(0,0,0);
+    OBS = glm::vec3(0, 0, distance);
+    UP = glm::vec3(0, 1, 0);
+
+    //ZNear = 1.0;
+    //ZFar = 30.0;
+    ZNear = distance - radi;
+    ZFar = distance + radi;
+    FOVinicial = 2*asin(radi/distance) - zoom;
+
+    resizeGL(width(), height());
+    projectTransform();
+    viewTransform();
 }
 
 void MyGLWidget::paintGL ()
 {
+  updateScene();
+
   // Esborrem el frame-buffer i el depth-buffer
   glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+  // ---------- TERRA
 
   // Activem el VAO per a pintar el terra 
   glBindVertexArray (VAO_Terra);
@@ -43,12 +67,34 @@ void MyGLWidget::paintGL ()
   modelTransformTerra ();
 
   // pintem
-  glDrawArrays(GL_TRIANGLES, 0, 12);
+  glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+  // ---------- PATRICIO1
 
   // Activem el VAO per a pintar el Patricio
   glBindVertexArray (VAO_Patr);
 
-  modelTransformPatricio ();
+  modelTransformPatricio1 ();
+
+  // Pintem l'escena
+  glDrawArrays(GL_TRIANGLES, 0, patr.faces().size()*3);
+
+  // ---------- PATRICIO2
+
+  // Activem el VAO per a pintar el Patricio
+  glBindVertexArray (VAO_Patr);
+
+  modelTransformPatricio2 ();
+
+  // Pintem l'escena
+  glDrawArrays(GL_TRIANGLES, 0, patr.faces().size()*3);
+
+  // ---------- PATRICIO3
+
+  // Activem el VAO per a pintar el Patricio
+  glBindVertexArray (VAO_Patr);
+
+  modelTransformPatricio3 ();
 
   // Pintem l'escena
   glDrawArrays(GL_TRIANGLES, 0, patr.faces().size()*3);
@@ -58,14 +104,19 @@ void MyGLWidget::paintGL ()
 
 void MyGLWidget::resizeGL (int w, int h)
 {
+  ra = (float) w / (float) h;
+  if (ra < 1) {
+    FOV = 2*atan(tan(FOVinicial/2)/ra);
+  }
+  else FOV = FOVinicial;
+
   glViewport (0, 0, w, h);
 }
 
 void MyGLWidget::createBuffers ()
 {
   // Carreguem el model de l'OBJ - Atenció! Abans de crear els buffers!
-  //patr.load("/assig/idi/models/Patricio.obj");
-  patr.load("/assig/idi/models/Patricio.obj");
+  patr.load("./models/Patricio.obj");
 
   // Calculem la capsa contenidora del model
   calculaCapsaModel ();
@@ -127,47 +178,37 @@ void MyGLWidget::createBuffers ()
 
   // Dades del terra
   // VBO amb la posició dels vèrtexs
-  glm::vec3 posterra[12] = {
-	glm::vec3(-1.0, -1.0, 1.0),
-	glm::vec3(1.0, -1.0, 1.0),
-	glm::vec3(-1.0, -1.0, -1.0),
-	glm::vec3(-1.0, -1.0, -1.0),
-	glm::vec3(1.0, -1.0, 1.0),
-	glm::vec3(1.0, -1.0, -1.0),
-	glm::vec3(-1.0, -1.0, -1.0),
-	glm::vec3(1.0, -1.0, -1.0),
-	glm::vec3(-1.0, 1.0, -1.0),
-	glm::vec3(-1.0, 1.0, -1.0),
-	glm::vec3(1.0, -1.0, -1.0),
-	glm::vec3(1.0, 1.0, -1.0)
+  glm::vec3 posterra[4] = {
+	glm::vec3( 10.0, 0.0, -10.0),
+	glm::vec3( 10.0, 0.0,  10.0),
+	glm::vec3(-10.0, 0.0, -10.0),
+	glm::vec3(-10.0, 0.0,  10.0)
   }; 
 
   // VBO amb la normal de cada vèrtex
-  glm::vec3 norm1 (0,1,0);
-  glm::vec3 norm2 (0,0,1);
-  glm::vec3 normterra[12] = {
-	norm1, norm1, norm1, norm1, norm1, norm1, // la normal (0,1,0) per als primers dos triangles
-	norm2, norm2, norm2, norm2, norm2, norm2  // la normal (0,0,1) per als dos últims triangles
+  glm::vec3 norm (0,1,0);
+  glm::vec3 normterra[4] = {
+	norm, norm, norm, norm
   };
 
   // Definim el material del terra
-  glm::vec3 amb(0,0,0.6);
-  glm::vec3 diff(0,0,1);
+  glm::vec3 amb(1.0,1.0,0.0);
+  glm::vec3 diff(1.0,1.0,0.0);
   glm::vec3 spec(1,1,1);
   float shin = 10000;
 
   // Fem que aquest material afecti a tots els vèrtexs per igual
-  glm::vec3 matambterra[12] = {
-	amb, amb, amb, amb, amb, amb, amb, amb, amb, amb, amb, amb
+  glm::vec3 matambterra[4] = {
+	amb, amb, amb, amb
   };
-  glm::vec3 matdiffterra[12] = {
-	diff, diff, diff, diff, diff, diff, diff, diff, diff, diff, diff, diff
+  glm::vec3 matdiffterra[4] = {
+	diff, diff, diff, diff
   };
-  glm::vec3 matspecterra[12] = {
-	spec, spec, spec, spec, spec, spec, spec, spec, spec, spec, spec, spec
+  glm::vec3 matspecterra[4] = {
+	spec, spec, spec, spec
   };
-  float matshinterra[12] = {
-	shin, shin, shin, shin, shin, shin, shin, shin, shin, shin, shin, shin
+  float matshinterra[4] = {
+	shin, shin, shin, shin
   };
 
 // Creació del Vertex Array Object del terra
@@ -226,7 +267,7 @@ void MyGLWidget::createBuffers ()
   glBindVertexArray(0);
 }
 
-void MyGLWidget::carregaShaders ()
+void MyGLWidget::loadShaders ()
 {
   // Creem els shaders per al fragment i vertex shader
   QGLShader fs(QGLShader::Fragment, this);
@@ -264,38 +305,44 @@ void MyGLWidget::carregaShaders ()
   transLoc = glGetUniformLocation (program->programId(), "TG");
   projLoc = glGetUniformLocation (program->programId(), "proj");
   viewLoc = glGetUniformLocation (program->programId(), "view");
-  posFocus= glGetUniformLocation (program->programId(), "posFocus");
-  colFocus= glGetUniformLocation (program->programId(), "colFocus");
+  posFocusLoc = glGetUniformLocation (program->programId(), "posFocus");
+  colFocusLoc = glGetUniformLocation (program->programId(), "colFocus");
+  fcolorLoc = glGetUniformLocation (program->programId(), "fcolor");
 }
 
-void MyGLWidget::modelTransformPatricio ()
+void MyGLWidget::modelTransformPatricio1 ()
 {
   glm::mat4 TG;  // Matriu de transformació
-  TG = glm::scale(TG, glm::vec3(escala, escala, escala));
-  TG = glm::translate(TG, -centrePatr);
-  
+  TG = glm::translate(TG, glm::vec3(0, 0, movZ));
+  TG = glm::translate(TG, glm::vec3(0, 0, -8));
+  TG = glm::scale(TG, glm::vec3(escalaPatricio1));
+  TG = glm::translate(TG, -centreBasePatr);
+
   glUniformMatrix4fv (transLoc, 1, GL_FALSE, &TG[0][0]);
 }
-//vec3 colFocus = vec3(0.8, 0.8, 0.8);
-//vec3 llumAmbient = vec3(0.2, 0.2, 0.2);
-//vec3 posFocus = vec3(0, 1, -1);  // en SCA
-void MyGLWidget::modelPosLlum ()
+
+void MyGLWidget::modelTransformPatricio2 ()
 {
+  glm::mat4 TG;  // Matriu de transformació
+  TG = glm::translate(TG, glm::vec3(0, 0, movZ));
+  TG = glm::translate(TG, glm::vec3(0, 3, -8));
+  TG = glm::rotate(TG, (float)M_PI, glm::vec3(0.0, 1.0, 0.0));
+  TG = glm::scale(TG, glm::vec3(escalaPatricio2));
+  TG = glm::translate(TG, -centreBasePatr);
 
-
-   glUniform3fv (posFocus, 1, &posF[0]);
+  glUniformMatrix4fv (transLoc, 1, GL_FALSE, &TG[0][0]);
 }
 
-void MyGLWidget::modelcolorLlum ()
+void MyGLWidget::modelTransformPatricio3 ()
 {
+  glm::mat4 TG;  // Matriu de transformació
+  TG = glm::translate(TG, glm::vec3(0, 0, movZ));
+  TG = glm::translate(TG, glm::vec3(0, 5.5, -8));
+  TG = glm::scale(TG, glm::vec3(escalaPatricio3));
+  TG = glm::translate(TG, -centreBasePatr);
 
-  colorF = glm::vec3(0.8, 0.8, 0.8);
-   glUniform3fv (colFocus, 1, &colorF[0]);
-
+  glUniformMatrix4fv (transLoc, 1, GL_FALSE, &TG[0][0]);
 }
-
-
-
 
 void MyGLWidget::modelTransformTerra ()
 {
@@ -306,81 +353,78 @@ void MyGLWidget::modelTransformTerra ()
 
 void MyGLWidget::projectTransform ()
 {
-  //sempre mantenim la aspect ratio de la pantalla per evitar deformacions
   glm::mat4 Proj;  // Matriu de projecció
-  Proj = glm::perspective(fov, 1.0, radiEsc, 3.*radiEsc);
-
+  Proj = glm::perspective(FOV, ra, ZNear, ZFar);
   glUniformMatrix4fv (projLoc, 1, GL_FALSE, &Proj[0][0]);
 }
 
 void MyGLWidget::viewTransform ()
 {
   glm::mat4 View;  // Matriu de posició i orientació
-  View = glm::translate(glm::mat4(1.f), glm::vec3(0, 0, -2*radiEsc));
+  View = glm::translate(glm::mat4(1.f), glm::vec3(0, 0, -distance));
+  View = glm::rotate(View, angleX, glm::vec3(1, 0, 0));
   View = glm::rotate(View, -angleY, glm::vec3(0, 1, 0));
-  View = glm::rotate(View, -angleX, glm::vec3(1, 0, 0));
-
   glUniformMatrix4fv (viewLoc, 1, GL_FALSE, &View[0][0]);
 }
 
 void MyGLWidget::calculaCapsaModel ()
 {
   // Càlcul capsa contenidora i valors transformacions inicials
-  float minx, miny, minz, maxx, maxy, maxz;
-  minx = maxx = patr.vertices()[0];
-  miny = maxy = patr.vertices()[1];
-  minz = maxz = patr.vertices()[2];
+  boxPatricio.minx = boxPatricio.maxx = patr.vertices()[0];
+  boxPatricio.miny = boxPatricio.maxy = patr.vertices()[1];
+  boxPatricio.minz = boxPatricio.maxz = patr.vertices()[2];
   for (unsigned int i = 3; i < patr.vertices().size(); i+=3)
   {
-    if (patr.vertices()[i+0] < minx)
-      minx = patr.vertices()[i+0];
-    if (patr.vertices()[i+0] > maxx)
-      maxx = patr.vertices()[i+0];
-    if (patr.vertices()[i+1] < miny)
-      miny = patr.vertices()[i+1];
-    if (patr.vertices()[i+1] > maxy)
-      maxy = patr.vertices()[i+1];
-    if (patr.vertices()[i+2] < minz)
-      minz = patr.vertices()[i+2];
-    if (patr.vertices()[i+2] > maxz)
-      maxz = patr.vertices()[i+2];
+    if (patr.vertices()[i+0] < boxPatricio.minx) boxPatricio.minx = patr.vertices()[i+0];
+    if (patr.vertices()[i+0] > boxPatricio.maxx) boxPatricio.maxx = patr.vertices()[i+0];
+    if (patr.vertices()[i+1] < boxPatricio.miny) boxPatricio.miny = patr.vertices()[i+1];
+    if (patr.vertices()[i+1] > boxPatricio.maxy) boxPatricio.maxy = patr.vertices()[i+1];
+    if (patr.vertices()[i+2] < boxPatricio.minz) boxPatricio.minz = patr.vertices()[i+2];
+    if (patr.vertices()[i+2] > boxPatricio.maxz) boxPatricio.maxz = patr.vertices()[i+2];
   }
-  escala = 2.0/(maxy-miny);
-  centrePatr[0] = (minx+maxx)/2.0; centrePatr[1] = (miny+maxy)/2.0; centrePatr[2] = (minz+maxz)/2.0;
+  //centreBasePatr[0] = (minx+maxx)/2.0; centreBasePatr[1] = miny; centreBasePatr[2] = (minz+maxz)/2.0;
+  centrePatr = boxPatricio.getCentre();
+  centreBasePatr = boxPatricio.getBaseCentre();
+  escalaPatricio1 = 3.0/(boxPatricio.maxy-boxPatricio.miny);
+  escalaPatricio2 = 2.5/(boxPatricio.maxy-boxPatricio.miny);
+  escalaPatricio3 = 2.0/(boxPatricio.maxy-boxPatricio.miny);
+}
+
+void MyGLWidget::loadLlum ()
+{
+    glUniform3fv(posFocusLoc, 1, &posFocus[0]);
+    glUniform3fv(colFocusLoc, 1, &colFocus[0]);
 }
 
 void MyGLWidget::keyPressEvent (QKeyEvent *e)
 {
   switch (e->key())
   {
-
-    case Qt::Key_K:
-      posF.x -= 0.5;
-      modelPosLlum();
-      break;
+    case Qt::Key_W:
+        movZ += 0.5;
+        modelTransformPatricio1();
+        modelTransformPatricio2();
+        modelTransformPatricio3();
+        break;
+    case Qt::Key_S:
+        movZ -= 0.5;
+        modelTransformPatricio1();
+        modelTransformPatricio2();
+        modelTransformPatricio3();
+        break;
     case Qt::Key_L:
-       posF.x += 0.5;
-       modelPosLlum();
-       break;
+        if (colFocus.x == colFocus.y && colFocus.x == colFocus.z) colFocus = glm::vec3(0.8, 0.0, 0.8);
+        else colFocus = glm::vec3(0.8, 0.8, 0.8);
+        loadLlum();
+        break;
+    case Qt::Key_X:
+
+        break;
     case Qt::Key_Escape:
         exit(0);
-
     default: e->ignore(); break;
   }
   updateGL();
-}
-
-
-void MyGLWidget:: wheelEvent(QWheelEvent *e)
-{
-    int numDegrees = e->delta() / 8;
-    int numSteps = numDegrees / 15;
-
-    if (e->orientation() == Qt::Vertical) {
-        fov += 0.08 * numSteps;
-        projectTransform();
-    }
-    updateGL();
 }
 
 void MyGLWidget::mousePressEvent (QMouseEvent *e)
@@ -407,7 +451,7 @@ void MyGLWidget::mouseMoveEvent(QMouseEvent *e)
   {
     // Fem la rotació
     angleY += (e->x() - xClick) * M_PI / 180.0;
-    angleX += (e->y() - yClick) * M_PI / 180.0;
+    angleX += (yClick - e->y()) * M_PI / 180.0;
     viewTransform ();
   }
 
