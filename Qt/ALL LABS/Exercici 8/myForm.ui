@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>myForm</class>
+ <widget class="QWidget" name="myForm">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>505</width>
+    <height>280</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="1">
+    <widget class="QLineEdit" name="lineEdit"/>
+   </item>
+   <item row="0" column="0">
+    <widget class="QSpinBox" name="spinBox"/>
+   </item>
+   <item row="0" column="2">
+    <widget class="QPushButton" name="confirmar">
+     <property name="text">
+      <string>Confirmar</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="2">
+    <widget class="QPushButton" name="pushButton_2">
+     <property name="text">
+      <string>Deshacer</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="2">
+    <widget class="QPushButton" name="pushButton_3">
+     <property name="text">
+      <string>Salir</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0" rowspan="3" colspan="2">
+    <widget class="MYQTextEdit" name="textEdit"/>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>MYQTextEdit</class>
+   <extends>QTextEdit</extends>
+   <header>MYQTextEdit.h</header>
+   <slots>
+    <slot>confirmar()</slot>
+    <slot>deshacer()</slot>
+    <slot>setTexto(QString)</slot>
+    <slot>setNum(QString)</slot>
+   </slots>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>pushButton_3</sender>
+   <signal>clicked()</signal>
+   <receiver>myForm</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>469</x>
+     <y>262</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>470</x>
+     <y>189</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>confirmar</sender>
+   <signal>clicked()</signal>
+   <receiver>textEdit</receiver>
+   <slot>confirmar()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>426</x>
+     <y>29</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>378</x>
+     <y>63</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButton_2</sender>
+   <signal>clicked()</signal>
+   <receiver>textEdit</receiver>
+   <slot>deshacer()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>459</x>
+     <y>62</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>385</x>
+     <y>106</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>lineEdit</sender>
+   <signal>textEdited(QString)</signal>
+   <receiver>textEdit</receiver>
+   <slot>setTexto(QString)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>218</x>
+     <y>23</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>224</x>
+     <y>81</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>spinBox</sender>
+   <signal>valueChanged(QString)</signal>
+   <receiver>textEdit</receiver>
+   <slot>setNum(QString)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>31</x>
+     <y>18</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>56</x>
+     <y>75</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>
