@@ -173,6 +173,11 @@ public:
         QObject::connect(sliderR, SIGNAL(sliderMoved(int)), lcdR, SLOT(display(int)));
         QObject::connect(sliderG, SIGNAL(sliderMoved(int)), lcdG, SLOT(display(int)));
         QObject::connect(sliderB, SIGNAL(sliderMoved(int)), lcdB, SLOT(display(int)));
+	
+	QObject::connect(sliderR, SIGNAL(sliderMoved(int)), labelColor, SLOT(getRed(int)));
+        QObject::connect(sliderG, SIGNAL(sliderMoved(int)), labelColor, SLOT(getGreen(int)));
+        QObject::connect(sliderB, SIGNAL(sliderMoved(int)), labelColor, SLOT(getBlue(int)));
+	QObject::connect(okButton, SIGNAL(clicked()), labelColor, SLOT(ok()));
 
         QMetaObject::connectSlotsByName(myForm);
     } // setupUi
