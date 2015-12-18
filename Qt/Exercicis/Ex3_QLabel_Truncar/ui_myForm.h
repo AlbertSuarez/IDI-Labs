@@ -29,11 +29,11 @@ class Ui_myForm
 public:
     QLabel *labelText;
     QLineEdit *lineEdit;
-    QWidget *widget;
+    QWidget *layoutWidget;
     QHBoxLayout *horizontalLayout;
     QLabel *labelTextRetallat;
     myLabel *labelTextEdit;
-    QWidget *widget1;
+    QWidget *layoutWidget1;
     QHBoxLayout *layoutSlider;
     QSlider *slider;
     QPushButton *exitButton;
@@ -55,37 +55,37 @@ public:
         lineEdit = new QLineEdit(myForm);
         lineEdit->setObjectName(QString::fromUtf8("lineEdit"));
         lineEdit->setGeometry(QRect(251, 12, 241, 22));
-        widget = new QWidget(myForm);
-        widget->setObjectName(QString::fromUtf8("widget"));
-        widget->setGeometry(QRect(12, 40, 481, 18));
-        horizontalLayout = new QHBoxLayout(widget);
+        layoutWidget = new QWidget(myForm);
+        layoutWidget->setObjectName(QString::fromUtf8("layoutWidget"));
+        layoutWidget->setGeometry(QRect(12, 40, 481, 18));
+        horizontalLayout = new QHBoxLayout(layoutWidget);
         horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
         horizontalLayout->setContentsMargins(0, 0, 0, 0);
-        labelTextRetallat = new QLabel(widget);
+        labelTextRetallat = new QLabel(layoutWidget);
         labelTextRetallat->setObjectName(QString::fromUtf8("labelTextRetallat"));
         labelTextRetallat->setFont(font);
 
         horizontalLayout->addWidget(labelTextRetallat);
 
-        labelTextEdit = new myLabel(widget);
+        labelTextEdit = new myLabel(layoutWidget);
         labelTextEdit->setObjectName(QString::fromUtf8("labelTextEdit"));
 
         horizontalLayout->addWidget(labelTextEdit);
 
-        widget1 = new QWidget(myForm);
-        widget1->setObjectName(QString::fromUtf8("widget1"));
-        widget1->setGeometry(QRect(11, 133, 481, 25));
-        layoutSlider = new QHBoxLayout(widget1);
+        layoutWidget1 = new QWidget(myForm);
+        layoutWidget1->setObjectName(QString::fromUtf8("layoutWidget1"));
+        layoutWidget1->setGeometry(QRect(11, 133, 481, 25));
+        layoutSlider = new QHBoxLayout(layoutWidget1);
         layoutSlider->setObjectName(QString::fromUtf8("layoutSlider"));
         layoutSlider->setContentsMargins(0, 0, 0, 0);
-        slider = new QSlider(widget1);
+        slider = new QSlider(layoutWidget1);
         slider->setObjectName(QString::fromUtf8("slider"));
         slider->setSliderPosition(99);
         slider->setOrientation(Qt::Horizontal);
 
         layoutSlider->addWidget(slider);
 
-        exitButton = new QPushButton(widget1);
+        exitButton = new QPushButton(layoutWidget1);
         exitButton->setObjectName(QString::fromUtf8("exitButton"));
 
         layoutSlider->addWidget(exitButton);
@@ -94,7 +94,7 @@ public:
         retranslateUi(myForm);
         QObject::connect(lineEdit, SIGNAL(textChanged(QString)), labelTextEdit, SLOT(setText(QString)));
         QObject::connect(exitButton, SIGNAL(clicked()), myForm, SLOT(close()));
-
+	QObject::connect(slider, SIGNAL(sliderMoved(int)), labelTextEdit, SLOT(truncar(int)));
         QMetaObject::connectSlotsByName(myForm);
     } // setupUi
 

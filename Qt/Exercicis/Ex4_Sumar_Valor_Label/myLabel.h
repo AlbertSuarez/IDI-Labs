@@ -5,10 +5,11 @@ class myLabel: public QLabel
   Q_OBJECT
   public:
   	myLabel(QWidget *parent);
-	bool haMogut;
-	int size;
+	int suma;
 	
   public slots:
-	void truncar(int);
+	void sumOne();
+	void sumTwo();
+	void setZero();
 };
  

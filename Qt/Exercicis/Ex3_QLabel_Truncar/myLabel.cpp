@@ -2,13 +2,18 @@
 
 myLabel::myLabel(QWidget *parent):QLabel(parent)
 {
-
+  haMogut = false;
+  size = 0;
 }
 
 
 void myLabel::truncar(int n)
 {
     QString s = text();
-    s.truncate((s.size()*n)/100);
+    if (!haMogut) {
+      haMogut = true;
+      size = s.size();
+    }
+    s.truncate((size*n)/100);
     setText(s);
 }
