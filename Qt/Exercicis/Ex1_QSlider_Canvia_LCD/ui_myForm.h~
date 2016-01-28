@@ -19,7 +19,7 @@
 #include <QtGui/QSlider>
 #include <QtGui/QSpacerItem>
 #include <QtGui/QWidget>
-#include "myLCD.h"
+#include "mylcd.h"
 
 QT_BEGIN_NAMESPACE
 
